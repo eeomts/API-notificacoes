@@ -1,0 +1,18 @@
+# Redireciona todas as requisicoes para index.php (Apache)
+Options -Indexes
+
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Seguranca: bloqueia acesso direto a arquivos sensiveis
+<FilesMatch "\.(json|log|env)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Bloqueia acesso a diretorio storage
+<IfModule mod_alias.c>
+    RedirectMatch 403 ^/storage
+</IfModule>
