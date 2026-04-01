@@ -1,4 +1,3 @@
 /storage/service.account.json
-/config/config.php
-/config/database.php
+/config/*
 /examples
