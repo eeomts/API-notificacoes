@@ -149,7 +149,7 @@ class GoogleAuthService
             Response::error('Erro interno de autenticacao.', 500);
         }
 
-        openssl_free_key($privateKey);
+        unset($privateKey);
 
         return $signingInput . '.' . $this->encodeBase64Url($signature);
     }
