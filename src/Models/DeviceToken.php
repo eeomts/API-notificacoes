@@ -54,7 +54,7 @@ class DeviceToken
     public function findByUserId($userId)
     {
         return $this->db->fetchAll(
-            "SELECT * FROM device_tokens WHERE user_id = ? ORDER BY updated_at DESC",
+            "SELECT * FROM device_tokens WHERE user_id = ? AND active = 1 ORDER BY updated_at DESC",
             array($userId)
         );
     }
