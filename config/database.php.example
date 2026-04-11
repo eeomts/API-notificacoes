@@ -1,0 +1,13 @@
+<?php
+/**
+ * Configuração do banco de dados (MySQL)
+ * Copie este arquivo para database.php e preencha com seus valores:
+ *   cp config/database.php.example config/database.php
+ */
+
+define('DB_HOST',    'localhost');
+define('DB_PORT',    '3306');
+define('DB_NAME',    'fcm_notifications');
+define('DB_USER',    'seu-usuario');
+define('DB_PASS',    'sua-senha');
+define('DB_CHARSET', 'utf8mb4');
