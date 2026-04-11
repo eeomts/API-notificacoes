@@ -15,11 +15,5 @@ storage/logs/
 *.iml
 .vscode/
 
-# Node (para exemplos JS)
-examples/nodejs/node_modules/
-examples/javascript/node_modules/
-
-# Python (para exemplos Python)
-examples/python/__pycache__/
-examples/python/*.pyc
-examples/python/.venv/
+# Exemplos de integração (ficam apenas localmente)
+examples/
