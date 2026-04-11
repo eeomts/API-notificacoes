@@ -17,3 +17,5 @@ storage/logs/
 
 # Exemplos de integração (ficam apenas localmente)
 examples/
+
+.claude/
