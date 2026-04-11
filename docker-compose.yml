@@ -1,0 +1,15 @@
+services:
+  api:
+    build: .
+    container_name: api-notificacoes
+    restart: always
+    volumes:
+      - .:/var/www/html
+    expose:
+      - "9000"
+    networks:
+      - nginx-network
+
+networks:
+  nginx-network:
+    external: true
