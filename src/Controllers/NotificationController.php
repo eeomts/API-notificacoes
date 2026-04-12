@@ -13,11 +13,14 @@ class NotificationController
     private $deviceToken;
     private $notificationLog;
 
+    private $appId;
+
     public function __construct($appId = null)
     {
         $this->fcmService       = new FcmService($appId);
         $this->deviceToken      = new DeviceToken();
         $this->notificationLog  = new NotificationLog();
+        $this->appId            = $appId ?? 'default';
     }
 
     /**
@@ -143,7 +146,7 @@ class NotificationController
         $body   = $v->get('body');
         $data   = $v->get('data', array());
 
-        $userTokens = $this->deviceToken->findByUserId($userId);
+        $userTokens = $this->deviceToken->findByUserId($userId, $this->appId);
         if (empty($userTokens)) {
             Response::error('Nenhum dispositivo encontrado para este usuario.', 404);
         }
@@ -191,8 +194,8 @@ class NotificationController
         $platform = $v->get('platform');
 
         $allTokens = $platform
-            ? $this->deviceToken->findByPlatform($platform)
-            : $this->deviceToken->findAllActive();
+            ? $this->deviceToken->findByPlatform($platform, $this->appId)
+            : $this->deviceToken->findAllActive($this->appId);
 
         if (empty($allTokens)) {
             Response::error('Nenhum dispositivo ativo encontrado.', 404);

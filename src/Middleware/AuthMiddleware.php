@@ -26,12 +26,14 @@ class AuthMiddleware {
             Response::unauthorized("Token invalido");
         }
 
-        if ($appId !== null) {
-            $appId = preg_replace('/[^a-zA-Z0-9_-]/', '', $appId);
-            $accountPath = __DIR__ . '/../../storage/accounts/' . $appId . '.json';
-            if (!file_exists($accountPath)) {
-                Response::error('App ID invalido ou nao configurado.', 400);
-            }
+        if (empty($appId)) {
+            Response::error('Header X-App-ID e obrigatorio.', 400);
+        }
+
+        $appId = preg_replace('/[^a-zA-Z0-9_-]/', '', $appId);
+        $accountPath = __DIR__ . '/../../storage/accounts/' . $appId . '.json';
+        if (!file_exists($accountPath)) {
+            Response::error('App ID invalido ou nao configurado.', 400);
         }
 
         return $appId;

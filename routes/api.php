@@ -58,7 +58,7 @@ HTML;
 
 $appId = AuthMiddleware::handle();
 
-$tokenController = new TokenController();
+$tokenController = new TokenController($appId);
 $notificationController = new NotificationController($appId);
 
 if ($path === '/api/tokens') {

@@ -15,26 +15,28 @@ class DeviceToken
      * Salva ou atualiza token de dispositivo
      * (upsert por token FCM)
      */
-    public function saveOrUpdate($fcmToken, $platform, $userId = null, $extra = array())
+    public function saveOrUpdate($fcmToken, $platform, $userId = null, $extra = array(), $appId = 'default')
     {
         $existing = $this->findByToken($fcmToken);
 
         if ($existing) {
             $sql = "UPDATE device_tokens
-                    SET platform = ?, user_id = ?, extra = ?, updated_at = NOW()
+                    SET platform = ?, user_id = ?, extra = ?, app_id = ?, updated_at = NOW()
                     WHERE fcm_token = ?";
             $this->db->query($sql, array(
                 $platform,
                 $userId,
                 json_encode($extra),
+                $appId,
                 $fcmToken,
             ));
             return $existing['id'];
         }
 
-        $sql = "INSERT INTO device_tokens (fcm_token, platform, user_id, extra, created_at, updated_at)
-                VALUES (?, ?, ?, ?, NOW(), NOW())";
+        $sql = "INSERT INTO device_tokens (app_id, fcm_token, platform, user_id, extra, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
         $this->db->query($sql, array(
+            $appId,
             $fcmToken,
             $platform,
             $userId,
@@ -51,26 +53,27 @@ class DeviceToken
         );
     }
 
-    public function findByUserId($userId)
+    public function findByUserId($userId, $appId = 'default')
     {
         return $this->db->fetchAll(
-            "SELECT * FROM device_tokens WHERE user_id = ? AND active = 1 ORDER BY updated_at DESC",
-            array($userId)
+            "SELECT * FROM device_tokens WHERE user_id = ? AND app_id = ? AND active = 1 ORDER BY updated_at DESC",
+            array($userId, $appId)
         );
     }
 
-    public function findAllActive()
+    public function findAllActive($appId = 'default')
     {
         return $this->db->fetchAll(
-            "SELECT * FROM device_tokens WHERE active = 1 ORDER BY updated_at DESC"
+            "SELECT * FROM device_tokens WHERE app_id = ? AND active = 1 ORDER BY updated_at DESC",
+            array($appId)
         );
     }
 
-    public function findByPlatform($platform)
+    public function findByPlatform($platform, $appId = 'default')
     {
         return $this->db->fetchAll(
-            "SELECT * FROM device_tokens WHERE platform = ? AND active = 1",
-            array($platform)
+            "SELECT * FROM device_tokens WHERE platform = ? AND app_id = ? AND active = 1",
+            array($platform, $appId)
         );
     }
 

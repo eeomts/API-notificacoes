@@ -19,11 +19,11 @@ components:
     AppId:
       name: X-App-ID
       in: header
-      required: false
-      description: Identificador do app Firebase. Se omitido, usa o app padrão do servidor.
+      required: true
+      description: Identificador do app Firebase. Deve corresponder a um service account configurado no servidor.
       schema:
         type: string
-        example: hipercheck
+        example: app-example
 
   schemas:
     SuccessResponse:

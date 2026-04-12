@@ -9,9 +9,12 @@ class TokenController
 {
     private $deviceToken;
 
-    public function __construct()
+    private $appId;
+
+    public function __construct($appId = 'default')
     {
         $this->deviceToken = new DeviceToken();
+        $this->appId = $appId;
     }
 
     /**
@@ -53,7 +56,7 @@ class TokenController
         }
 
         try {
-            $id = $this->deviceToken->saveOrUpdate($fcmToken, $platform, $userId, $extra);
+            $id = $this->deviceToken->saveOrUpdate($fcmToken, $platform, $userId, $extra, $this->appId);
             Logger::info('Token salvo/atualizado', array('id' => $id, 'platform' => $platform));
 
             Response::success(
@@ -85,11 +88,11 @@ class TokenController
             $userId   = isset($_GET['user_id']) ? $_GET['user_id'] : null;
 
             if ($userId) {
-                $tokens = $this->deviceToken->findByUserId($userId);
+                $tokens = $this->deviceToken->findByUserId($userId, $this->appId);
             } elseif ($platform) {
-                $tokens = $this->deviceToken->findByPlatform($platform);
+                $tokens = $this->deviceToken->findByPlatform($platform, $this->appId);
             } else {
-                $tokens = $this->deviceToken->findAllActive();
+                $tokens = $this->deviceToken->findAllActive($this->appId);
             }
 
             Response::success(array('tokens' => $tokens, 'total' => count($tokens)));

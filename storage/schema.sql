@@ -4,6 +4,7 @@ USE fcm_notifications;
 
 CREATE TABLE IF NOT EXISTS device_tokens (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    app_id VARCHAR(100) NOT NULL DEFAULT 'default',
     fcm_token VARCHAR(512) NOT NULL UNIQUE,
     platform ENUM('android','ios','web') NOT NULL,
     user_id VARCHAR(128) NULL,
@@ -12,6 +13,7 @@ CREATE TABLE IF NOT EXISTS device_tokens (
     created_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL,
 
+    INDEX idx_app_id (app_id),
     INDEX idx_user_id (user_id),
     INDEX idx_platform (platform),
     INDEX idx_active (active)
