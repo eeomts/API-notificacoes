@@ -1,6 +1,24 @@
 <?php
 CorsMiddleware::handle();
 
+$requestUri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
+$scriptName = isset($_SERVER['SCRIPT_NAME']) ? dirname($_SERVER['SCRIPT_NAME']) : '';
+$path = parse_url($requestUri, PHP_URL_PATH);
+
+if ($scriptName && $scriptName !== '/' && strpos($path, $scriptName) === 0) {
+    $path = substr($path, strlen($scriptName));
+}
+
+$path = '/' . ltrim($path, '/');
+
+if ($path === '/api/health' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    Response::success(array(
+        'status'  => 'ok',
+        'version' => APP_VERSION,
+        'time'    => date('c'),
+    ), 'API funcionando.');
+}
+
 if ($path === '/api/docs/openapi.yaml' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     $yamlFile = __DIR__ . '/../docs/openapi.yaml';
     header('Content-Type: application/yaml');
@@ -9,7 +27,7 @@ if ($path === '/api/docs/openapi.yaml' && $_SERVER['REQUEST_METHOD'] === 'GET') 
 }
 
 if ($path === '/api/docs' && $_SERVER['REQUEST_METHOD'] === 'GET') {
-    $specUrl = '/api/docs/openapi.yaml';
+    $specUrl = '/api/api-notificacoes/docs/openapi.yaml';
     header('Content-Type: text/html; charset=utf-8');
     echo <<<HTML
 <!DOCTYPE html>
@@ -36,25 +54,6 @@ if ($path === '/api/docs' && $_SERVER['REQUEST_METHOD'] === 'GET') {
 </html>
 HTML;
     exit;
-}
-
-
-$requestUri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
-$scriptName = isset($_SERVER['SCRIPT_NAME']) ? dirname($_SERVER['SCRIPT_NAME']) : '';
-$path = parse_url($requestUri, PHP_URL_PATH);
-
-if ($scriptName && $scriptName !== '/' && strpos($path, $scriptName) === 0) {
-    $path = substr($path, strlen($scriptName));
-}
-
-$path = '/' . ltrim($path, '/');
-
-if ($path === '/api/health' && $_SERVER['REQUEST_METHOD'] === 'GET') {
-    Response::success(array(
-        'status'  => 'ok',
-        'version' => APP_VERSION,
-        'time'    => date('c'),
-    ), 'API funcionando.');
 }
 
 $appId = AuthMiddleware::handle();
