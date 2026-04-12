@@ -1,0 +1,364 @@
+openapi: 3.0.3
+info:
+  title: API Notificações FCM
+  description: API para envio de notificações push via Firebase Cloud Messaging (FCM V1)
+  version: 1.0.0
+
+servers:
+  - url: https://api.mateusmoreira.dev/api/api-notificacoes
+    description: Produção
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: API Key
+
+  parameters:
+    AppId:
+      name: X-App-ID
+      in: header
+      required: false
+      description: Identificador do app Firebase. Se omitido, usa o app padrão do servidor.
+      schema:
+        type: string
+        example: hipercheck
+
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+        data:
+          type: object
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+        errors:
+          type: object
+
+security:
+  - BearerAuth: []
+
+paths:
+  /health:
+    get:
+      tags:
+        - Sistema
+      summary: Health check
+      description: Verifica se a API está funcionando. Não requer autenticação.
+      security: []
+      responses:
+        '200':
+          description: API funcionando
+          content:
+            application/json:
+              example:
+                success: true
+                message: API funcionando.
+                data:
+                  status: ok
+                  version: 1.0.0
+                  time: "2026-04-11T00:00:00+00:00"
+
+  /tokens:
+    post:
+      tags:
+        - Tokens
+      summary: Registrar token FCM
+      description: Salva ou atualiza o token FCM de um dispositivo.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - fcm_token
+                - platform
+              properties:
+                fcm_token:
+                  type: string
+                  description: Token gerado pelo SDK do Firebase no app
+                  example: "dGVzdC10b2tlbi0xMjM..."
+                platform:
+                  type: string
+                  enum: [android, ios, web]
+                  example: android
+                user_id:
+                  type: string
+                  description: Identificador do usuário logado (opcional)
+                  example: "user_123"
+                extra:
+                  type: object
+                  description: Dados extras como versão do app, modelo do dispositivo
+                  example:
+                    app_version: "1.2.0"
+                    device_model: "Samsung Galaxy S21"
+      responses:
+        '201':
+          description: Token registrado com sucesso
+          content:
+            application/json:
+              example:
+                success: true
+                message: Token registrado com sucesso.
+                data:
+                  id: 42
+        '422':
+          description: Dados inválidos
+          content:
+            application/json:
+              $ref: '#/components/schemas/ErrorResponse'
+
+    get:
+      tags:
+        - Tokens
+      summary: Listar tokens
+      description: Lista todos os tokens ativos. Uso administrativo.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: platform
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [android, ios, web]
+        - name: user_id
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de tokens
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  tokens: []
+                  total: 0
+
+    delete:
+      tags:
+        - Tokens
+      summary: Remover token
+      description: Remove ou desativa um token de dispositivo.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - fcm_token
+              properties:
+                fcm_token:
+                  type: string
+                  example: "dGVzdC10b2tlbi0xMjM..."
+      responses:
+        '200':
+          description: Token removido com sucesso
+
+  /notifications/send-to-token:
+    post:
+      tags:
+        - Notificações
+      summary: Enviar para dispositivo
+      description: Envia uma notificação para um dispositivo específico via FCM token.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - fcm_token
+                - title
+                - body
+              properties:
+                fcm_token:
+                  type: string
+                  example: "dGVzdC10b2tlbi0xMjM..."
+                title:
+                  type: string
+                  example: "Nova mensagem"
+                body:
+                  type: string
+                  example: "Você tem uma nova mensagem."
+                data:
+                  type: object
+                  description: Payload customizado
+                  example:
+                    order_id: "456"
+                    screen: "orders"
+                android:
+                  type: object
+                  description: Configurações específicas Android
+                apns:
+                  type: object
+                  description: Configurações específicas iOS/APNS
+      responses:
+        '200':
+          description: Notificação enviada
+          content:
+            application/json:
+              example:
+                success: true
+                message: Notificacao enviada com sucesso.
+                data:
+                  message_id: "projects/app/messages/123"
+        '502':
+          description: Erro ao comunicar com FCM
+
+  /notifications/send-to-topic:
+    post:
+      tags:
+        - Notificações
+      summary: Enviar para tópico
+      description: Envia uma notificação para todos os dispositivos inscritos num tópico.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - topic
+                - title
+                - body
+              properties:
+                topic:
+                  type: string
+                  example: "promocoes"
+                title:
+                  type: string
+                  example: "Promoção especial!"
+                body:
+                  type: string
+                  example: "50% de desconto hoje."
+                data:
+                  type: object
+      responses:
+        '200':
+          description: Notificação enviada ao tópico
+
+  /notifications/send-to-users:
+    post:
+      tags:
+        - Notificações
+      summary: Enviar para usuário
+      description: Envia para todos os dispositivos cadastrados de um user_id.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+                - title
+                - body
+              properties:
+                user_id:
+                  type: string
+                  example: "user_123"
+                title:
+                  type: string
+                  example: "Pedido atualizado"
+                body:
+                  type: string
+                  example: "Seu pedido saiu para entrega."
+                data:
+                  type: object
+      responses:
+        '200':
+          description: Notificações enviadas
+        '404':
+          description: Nenhum dispositivo encontrado para o usuário
+
+  /notifications/broadcast:
+    post:
+      tags:
+        - Notificações
+      summary: Broadcast
+      description: Envia para todos os dispositivos ativos.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - body
+              properties:
+                title:
+                  type: string
+                  example: "Atualização do sistema"
+                body:
+                  type: string
+                  example: "Nova versão disponível."
+                data:
+                  type: object
+                platform:
+                  type: string
+                  enum: [android, ios, web]
+                  description: Filtrar por plataforma (opcional)
+      responses:
+        '200':
+          description: Broadcast enviado
+
+  /notifications/logs:
+    get:
+      tags:
+        - Notificações
+      summary: Histórico de notificações
+      description: Retorna o histórico paginado de notificações enviadas.
+      parameters:
+        - $ref: '#/components/parameters/AppId'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 200
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Histórico de notificações
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  logs: []
+                  total: 0
