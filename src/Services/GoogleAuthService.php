@@ -4,10 +4,15 @@ class GoogleAuthService
     private $serviceAccountPath;
     private $cacheFile;
 
-    public function __construct()
+    public function __construct($appId = null)
     {
-        $this->serviceAccountPath = FCM_SERVICE_ACCOUNT_PATH;
-        $this->cacheFile = TOKEN_CACHE_FILE;
+        if ($appId !== null) {
+            $this->serviceAccountPath = __DIR__ . '/../../storage/accounts/' . $appId . '.json';
+            $this->cacheFile = __DIR__ . '/../../storage/cache/token_' . $appId . '.json';
+        } else {
+            $this->serviceAccountPath = FCM_SERVICE_ACCOUNT_PATH;
+            $this->cacheFile = TOKEN_CACHE_FILE;
+        }
     }
 
     /**

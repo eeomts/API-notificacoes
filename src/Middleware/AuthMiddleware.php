@@ -3,12 +3,18 @@ class AuthMiddleware {
     public static function handle() {
         $headers = function_exists("getallheaders") ? getallheaders() : self::getHeaders();
         $authHeader = "";
+        $appId = null;
+
         foreach ($headers as $name => $value) {
-            if (strtolower($name) === "authorization") {
+            $lower = strtolower($name);
+            if ($lower === "authorization") {
                 $authHeader = $value;
-                break;
+            }
+            if ($lower === "x-app-id") {
+                $appId = $value;
             }
         }
+
         if (empty($authHeader)) {
             Response::unauthorized("Token nao informado.");
         }
@@ -19,6 +25,16 @@ class AuthMiddleware {
         if ($token !== API_SECRET_KEY) {
             Response::unauthorized("Token invalido");
         }
+
+        if ($appId !== null) {
+            $appId = preg_replace('/[^a-zA-Z0-9_-]/', '', $appId);
+            $accountPath = __DIR__ . '/../../storage/accounts/' . $appId . '.json';
+            if (!file_exists($accountPath)) {
+                Response::error('App ID invalido ou nao configurado.', 400);
+            }
+        }
+
+        return $appId;
     }
     private static function getHeaders() {
         $headers = array();

@@ -3,9 +3,21 @@ class FcmService
 {
     private $authService;
 
-    public function __construct()
+    private $fcmUrl;
+
+    public function __construct($appId = null)
     {
-        $this->authService = new GoogleAuthService();
+        $this->authService = new GoogleAuthService($appId);
+
+        if ($appId !== null) {
+            $accountPath = __DIR__ . '/../../storage/accounts/' . $appId . '.json';
+            $account = json_decode(file_get_contents($accountPath), true);
+            $projectId = $account['project_id'];
+        } else {
+            $projectId = FIREBASE_PROJECT_ID;
+        }
+
+        $this->fcmUrl = 'https://fcm.googleapis.com/v1/projects/' . $projectId . '/messages:send';
     }
 
     public function sendToToken($token, $title, $body, $data = array(), $extras = array())
@@ -93,7 +105,7 @@ class FcmService
 
         $ch = curl_init();
         curl_setopt_array($ch, array(
-            CURLOPT_URL => FCM_API_URL,
+            CURLOPT_URL => $this->fcmUrl,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => $payload,

@@ -19,10 +19,10 @@ if ($path === '/api/health' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     ), 'API funcionando.');
 }
 
-AuthMiddleware::handle();
+$appId = AuthMiddleware::handle();
 
 $tokenController = new TokenController();
-$notificationController = new NotificationController();
+$notificationController = new NotificationController($appId);
 
 if ($path === '/api/tokens') {
     switch ($_SERVER['REQUEST_METHOD']) {

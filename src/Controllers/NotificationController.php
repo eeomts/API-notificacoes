@@ -13,9 +13,9 @@ class NotificationController
     private $deviceToken;
     private $notificationLog;
 
-    public function __construct()
+    public function __construct($appId = null)
     {
-        $this->fcmService       = new FcmService();
+        $this->fcmService       = new FcmService($appId);
         $this->deviceToken      = new DeviceToken();
         $this->notificationLog  = new NotificationLog();
     }
