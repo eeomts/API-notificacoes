@@ -335,19 +335,6 @@ Query params: `?limit=50&offset=0`
 
 ---
 
-## Exemplos de integração
-
-Veja a pasta [`examples/`](./examples) para exemplos prontos em:
-
-- [cURL / Shell](./examples/curl/)
-- [PHP Vanilla](./examples/php/)
-- [Laravel](./examples/laravel/)
-- [JavaScript / Fetch](./examples/javascript/)
-- [Node.js / Axios](./examples/nodejs/)
-- [Python](./examples/python/)
-- [Android / Kotlin](./examples/android/)
-
----
 
 ## Variáveis de ambiente recomendadas para produção
 
