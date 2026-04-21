@@ -4,6 +4,7 @@ API REST para envio de notificações push via **Firebase Cloud Messaging (FCM V
 
 Projetada para ser um **serviço centralizado de notificações**: você faz um único deploy e consome as rotas a partir de qualquer aplicação (Laravel, Node.js, Python, Android, iOS, etc.), sem precisar distribuir credenciais do Firebase para cada sistema.
 
+
 ---
 
 ## Por que usar esta API como serviço centralizado?
